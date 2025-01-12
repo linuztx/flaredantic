@@ -1,0 +1,9 @@
+**/.venv
+**/.conda
+**/.env
+**/test
+**/tmp
+**/__pycache__
+**/dist
+**/build
+**/flaredantic.egg-info
