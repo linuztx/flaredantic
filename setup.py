@@ -5,8 +5,8 @@ setup(
     version="0.1.0",
     packages=find_packages(),
     install_requires=[
-        "requests>=2.25.0",
-        "tqdm>=4.65.0",
+        "requests>=2.32.0",
+        "tqdm>=4.67.0",
     ],
     author="linuztx",
     author_email="linuztx@gmail.com",
