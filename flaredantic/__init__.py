@@ -4,6 +4,7 @@ from .exceptions import (
     DownloadError,
     TunnelError,
 )
+from .__version__ import __version__
 
 __all__ = [
     "FlareTunnel",
@@ -11,4 +12,5 @@ __all__ = [
     "CloudflaredError",
     "DownloadError",
     "TunnelError",
+    "__version__",
 ] 
