@@ -1,8 +1,14 @@
 from setuptools import setup, find_packages
+import os
+
+# Read version from __version__.py
+version = {}
+with open(os.path.join("flaredantic", "__version__.py")) as f:
+    exec(f.read(), version)
 
 setup(
     name="flaredantic",
-    version="0.1.0",
+    version=version["__version__"],
     packages=find_packages(),
     install_requires=[
         "requests>=2.25.0,<3.0.0",
@@ -35,5 +41,10 @@ setup(
     project_urls={
         "Bug Reports": "https://github.com/linuztx/flaredantic/issues",
         "Source": "https://github.com/linuztx/flaredantic",
+    },
+    entry_points={
+        'console_scripts': [
+            'flare=flaredantic.cli:main',
+        ],
     },
 )
