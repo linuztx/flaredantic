@@ -1,36 +1,27 @@
 import subprocess
 import threading
-from pathlib import Path
-from typing import Optional, Union
-from dataclasses import dataclass
+from typing import Union, Optional
+from ...base.tunnel import BaseTunnel
+from ...exceptions import TunnelError
+from ...logging_config import setup_logger, GREEN, RESET
+from .config import FlareConfig
+from .downloader import FlareDownloader
 
-from .exceptions import TunnelError
-from .logging_config import setup_logger, GREEN, RESET
-from .downloader import CloudflaredDownloader
-
-@dataclass
-class TunnelConfig:
-    port: int
-    bin_dir: Path = Path.home() / ".flaredantic"
-    timeout: int = 30
-    verbose: bool = False
-
-class FlareTunnel:
-    def __init__(self, config: Union[TunnelConfig, dict]):
+class FlareTunnel(BaseTunnel):
+    def __init__(self, config: Union[FlareConfig, dict]):
         """
         Initialize FlareTunnel with configuration
         
         Args:
-            config: TunnelConfig object or dict with configuration parameters
+            config: FlareConfig object or dict with configuration parameters
         """
+        super().__init__()
         if isinstance(config, dict):
-            self.config = TunnelConfig(**config)
+            self.config = FlareConfig(**config)
         else:
             self.config = config
             
-        self.cloudflared_path: Optional[Path] = None
         self.tunnel_process: Optional[subprocess.Popen] = None
-        self.tunnel_url: Optional[str] = None
         self._stop_event = threading.Event()
         
         # Initialize logger and ensure bin directory exists
@@ -48,7 +39,6 @@ class FlareTunnel:
 
             line = line if isinstance(line, str) else line.decode('utf-8')
             if "trycloudflare.com" in line and "https://" in line:
-                # Skip if it's the api.trycloudflare.com URL
                 if "api.trycloudflare.com" in line:
                     self.logger.debug("Skipping api.trycloudflare.com URL")
                     continue
@@ -65,16 +55,16 @@ class FlareTunnel:
         Returns:
             Tunnel URL once available
         """
-        if not self.cloudflared_path:
+        if not self.binary_path:
             self.logger.debug("No cloudflared binary found, downloading...")
-            downloader = CloudflaredDownloader(self.config.bin_dir, self.config.verbose)
-            self.cloudflared_path = downloader.download()
+            downloader = FlareDownloader(self.config.bin_dir, self.config.verbose)
+            self.binary_path = downloader.download()
 
         self.logger.info(f"Starting Cloudflare tunnel on port {self.config.port}...")
         try:
             self.tunnel_process = subprocess.Popen(
                 [
-                    str(self.cloudflared_path),
+                    str(self.binary_path),
                     "tunnel",
                     "--url",
                     f"http://localhost:{self.config.port}"
@@ -115,13 +105,4 @@ class FlareTunnel:
             self.tunnel_process.wait()
             self.tunnel_process = None
             self.tunnel_url = None
-            self.logger.debug("Tunnel stopped successfully")
-
-    def __enter__(self):
-        """Context manager support"""
-        self.start()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Ensure tunnel is stopped when exiting context"""
-        self.stop() 
+            self.logger.debug("Tunnel stopped successfully") 

@@ -4,14 +4,14 @@ import tarfile
 from pathlib import Path
 from typing import Tuple
 from tqdm import tqdm
-from .exceptions import CloudflaredError, DownloadError
-from .logging_config import setup_logger
+from ...base.downloader import BaseDownloader
+from ...exceptions import CloudflaredError, DownloadError
+from ...logging_config import setup_logger
 
-class CloudflaredDownloader:
+class FlareDownloader(BaseDownloader):
     def __init__(self, bin_dir: Path, verbose: bool = False):
-        self.bin_dir = bin_dir
+        super().__init__(bin_dir, verbose)
         self.logger = setup_logger(verbose)
-        self.verbose = verbose
 
     @property
     def _platform_info(self) -> Tuple[str, str]:
