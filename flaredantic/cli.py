@@ -1,7 +1,7 @@
 import argparse
 import signal
 import sys
-from .flaredantic import FlareTunnel, TunnelConfig
+from . import FlareTunnel, FlareConfig
 
 def signal_handler(sig, frame):
     sys.exit(0)
@@ -39,14 +39,14 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     
     # Create and start tunnel
-    config = TunnelConfig(
+    config = FlareConfig(
         port=args.port,
         timeout=args.timeout,
         verbose=args.verbose
     )
     
     try:
-        with FlareTunnel(config) as tunnel:
+        with FlareTunnel(config):
             print(f"\nTunnel is running! Press Ctrl+C to stop.")
             signal.pause()  # Wait for Ctrl+C
     except Exception as e:
