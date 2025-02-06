@@ -6,7 +6,8 @@
 
 [![PyPI version](https://badge.fury.io/py/flaredantic.svg)](https://badge.fury.io/py/flaredantic)
 [![Python Versions](https://img.shields.io/pypi/pyversions/flaredantic.svg)](https://pypi.org/project/flaredantic/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Monthly Downloads](https://pepy.tech/badge/flaredantic/month)](https://pepy.tech/project/flaredantic)
 
 Flaredantic is a Python library that simplifies the process of creating Cloudflare tunnels, making it easy to expose your local services to the internet. It's designed to be a user-friendly alternative to ngrok, localtunnel, and similar services, leveraging Cloudflare's robust infrastructure.
 
@@ -65,10 +66,10 @@ CLI Options:
 #### Basic Usage
 
 ```python
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 
 # Create a tunnel for your local server running on port 8000
-config = TunnelConfig(port=8080)
+config = FlareConfig(port=8080)
 with FlareTunnel(config) as tunnel:
     print(f"Your service is available at: {tunnel.tunnel_url}")
     # Your application code here
@@ -78,11 +79,11 @@ with FlareTunnel(config) as tunnel:
 ### Custom Configuration
 
 ```python
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 from pathlib import Path
 
 # Configure tunnel with custom settings
-config = TunnelConfig(
+config = FlareConfig(
     port=8080,
     bin_dir=Path.home() / ".my-tunnels",
     timeout=60,
@@ -98,7 +99,7 @@ with FlareTunnel(config) as tunnel:
 ### Flask Application
 ```python
 from flask import Flask
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 import threading
 
 app = Flask(__name__)
@@ -108,7 +109,7 @@ def hello():
     return 'Hello, World!'
 
 def run_tunnel():
-    config = TunnelConfig(
+    config = FlareConfig(
         port=5000,
         verbose=True  # Enable logging for debugging
     )
@@ -132,12 +133,12 @@ if __name__ == '__main__':
 ## 📚 More Examples
 
 For more detailed examples and use cases, check out more [examples](docs/examples/Examples.md).
-- HTTP Server examples
+- HTTP Server example
 - Django integration
-- FastAPI applications
-- Flask applications
-- Custom configurations
+- FastAPI application
+- Flask application
+- Custom configuration
 - Error handling
-- Development vs Production setups
+- Development vs Production setup
 
 ---

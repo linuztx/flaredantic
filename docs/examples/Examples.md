@@ -7,13 +7,13 @@ This document provides various examples of how to use Flaredantic in different s
 ### Simple HTTP Server
 ```python
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 
 # Create a basic HTTP server
 server = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
 
 # Create and start tunnel
-config = TunnelConfig(port=8000)
+config = FlareConfig(port=8000)
 with FlareTunnel(config) as tunnel:
     print(f"Server accessible at: {tunnel.tunnel_url}")
     server.serve_forever()
@@ -21,14 +21,14 @@ with FlareTunnel(config) as tunnel:
 
 ### Django Development Server
 ```python
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 import subprocess
 
 # Start Django development server
 django_process = subprocess.Popen(['python', 'manage.py', 'runserver', '8000'])
 
 # Create tunnel to Django server
-config = TunnelConfig(
+config = FlareConfig(
     port=8000,
     verbose=True  # Enable logging for debugging
 )
@@ -45,7 +45,7 @@ with FlareTunnel(config) as tunnel:
 ### FastAPI with Background Tasks
 ```python
 from fastapi import FastAPI
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 import uvicorn
 
 app = FastAPI()
@@ -54,7 +54,7 @@ tunnel = None
 @app.on_event("startup")
 async def startup_event():
     global tunnel
-    config = TunnelConfig(
+    config = FlareConfig(
         port=8000,
         verbose=True  # Enable logging for debugging
     )
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 ### Flask Application
 ```python
 from flask import Flask
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 import threading
 
 app = Flask(__name__)
@@ -88,7 +88,7 @@ def hello():
     return 'Hello, World!'
 
 def run_tunnel():
-    config = TunnelConfig(
+    config = FlareConfig(
         port=5000,
         verbose=True  # Enable logging for debugging
     )
@@ -102,12 +102,12 @@ if __name__ == '__main__':
 
 ### Development vs Production Example
 ```python
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 import os
 
 # Configure based on environment
 is_dev = os.getenv("ENVIRONMENT") == "development"
-config = TunnelConfig(
+config = FlareConfig(
     port=8000,
     verbose=is_dev,     # Show debug output in development
     timeout=30 if is_dev else 60
@@ -133,7 +133,7 @@ python your_app.py
 
 ### Basic HTTP Server Test
 ```python
-from flaredantic import FlareTunnel, TunnelConfig
+from flaredantic import FlareTunnel, FlareConfig
 import requests
 import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -146,7 +146,7 @@ def test_tunnel():
     server_thread.start()
 
     # Create tunnel
-    config = TunnelConfig(port=8000, verbose=True)
+    config = FlareConfig(port=8000, verbose=True)
     with FlareTunnel(config) as tunnel:
         # Test the connection
         response = requests.get(tunnel.tunnel_url)
@@ -159,11 +159,11 @@ def test_tunnel():
 
 ### Retry Logic
 ```python
-from flaredantic import FlareTunnel, TunnelConfig, CloudflaredError
+from flaredantic import FlareTunnel, FlareConfig, CloudflaredError
 import time
 
 def create_tunnel_with_retry(port: int, max_retries: int = 3):
-    config = TunnelConfig(port=port, verbose=True)
+    config = FlareConfig(port=port, verbose=True)
     
     for attempt in range(max_retries):
         try:
