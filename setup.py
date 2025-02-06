@@ -6,14 +6,15 @@ version = {}
 with open(os.path.join("flaredantic", "__version__.py")) as f:
     exec(f.read(), version)
 
+# Read requirements from requirements.txt
+with open("requirements.txt") as f:
+    requirements = [line.strip() for line in f.readlines()]
+
 setup(
     name="flaredantic",
     version=version["__version__"],
     packages=find_packages(),
-    install_requires=[
-        "requests>=2.25.0,<3.0.0",
-        "tqdm>=4.50.0,<5.0.0",
-    ],
+    install_requires=requirements,
     author="linuztx",
     author_email="linuztx@gmail.com",
     description="A Python library for creating free Cloudflare tunnels with ease",
@@ -23,7 +24,7 @@ setup(
     classifiers=[
         "Operating System :: OS Independent",
         "Intended Audience :: Information Technology",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: System Administrators",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3 :: Only",
@@ -36,7 +37,7 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     keywords="cloudflare tunnel development networking proxy",
     project_urls={
         "Bug Reports": "https://github.com/linuztx/flaredantic/issues",
