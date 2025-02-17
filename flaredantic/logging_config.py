@@ -1,4 +1,5 @@
 import logging
+from .__version__ import __version__
 
 # ANSI colors for console output
 GREEN = "\033[92m"
@@ -35,6 +36,6 @@ def setup_logger(verbose: bool = False) -> logging.Logger:
     _logger.addHandler(console_handler)
     
     # Log GitHub URL and version
-    _logger.info("https://github.com/linuztx/flaredantic")
+    _logger.info(f"https://github.com/linuztx/flaredantic (v{__version__})")
     
     return _logger 
