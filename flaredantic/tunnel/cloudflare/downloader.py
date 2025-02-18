@@ -7,6 +7,7 @@ from tqdm import tqdm
 from ...base.downloader import BaseDownloader
 from ...exceptions import CloudflaredError, DownloadError
 from ...logging_config import setup_logger
+from ...utils.termux import is_termux, install_cloudflared
 
 class FlareDownloader(BaseDownloader):
     def __init__(self, bin_dir: Path, verbose: bool = False):
@@ -50,6 +51,11 @@ class FlareDownloader(BaseDownloader):
         Returns:
             Path to installed cloudflared binary
         """
+        # Check if Termux environment first
+        if is_termux():
+            self.logger.debug("Termux environment detected")
+            return install_cloudflared()
+        
         system, _ = self._platform_info
         executable_name = "cloudflared.exe" if system == "windows" else "cloudflared"
         install_path = self.bin_dir / executable_name

@@ -1,5 +1,6 @@
 import subprocess
 import threading
+import os
 from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
 from ...exceptions import TunnelError
@@ -66,6 +67,8 @@ class FlareTunnel(BaseTunnel):
                 [
                     str(self.binary_path),
                     "tunnel",
+                    "--protocol",
+                    "http2" if "TERMUX_VERSION" in os.environ else "quic",
                     "--url",
                     f"http://localhost:{self.config.port}"
                 ],

@@ -21,6 +21,7 @@ Flaredantic is a Python library that simplifies the process of creating Cloudfla
 - 💻 Command-line interface (CLI)
 - 📦 Automatic binary management
 - 🎯 Cross-platform support (Windows, macOS, Linux)
+- 📱 Android support via Termux
 - 🔄 Context manager support
 - 📊 Download progress tracking
 - 📝 Detailed logging with verbose mode
