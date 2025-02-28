@@ -1,13 +1,16 @@
 from setuptools import setup, find_packages
 import os
 
+# Get absolute path
+here = os.path.abspath(os.path.dirname(__file__))
+
 # Read version from __version__.py
 version = {}
-with open(os.path.join("flaredantic", "__version__.py")) as f:
+with open(os.path.join(here, "flaredantic", "__version__.py")) as f:
     exec(f.read(), version)
 
 # Read requirements from requirements.txt
-with open("requirements.txt") as f:
+with open(os.path.join(here, "requirements.txt"), encoding='utf-8') as f:
     requirements = [line.strip() for line in f.readlines()]
 
 setup(
@@ -21,6 +24,7 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/linuztx/flaredantic",
+    license="Apache License 2.0", 
     classifiers=[
         "Operating System :: OS Independent",
         "Intended Audience :: Information Technology",
@@ -38,7 +42,7 @@ setup(
         "Programming Language :: Python :: 3.13",
     ],
     python_requires=">=3.6",
-    keywords="cloudflare tunnel development networking proxy",
+    keywords="cloudflare tunnel development networking proxy webhook",
     project_urls={
         "Bug Reports": "https://github.com/linuztx/flaredantic/issues",
         "Source": "https://github.com/linuztx/flaredantic",
