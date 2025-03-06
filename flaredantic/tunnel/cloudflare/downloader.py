@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Tuple
 from tqdm import tqdm
 from ...base.downloader import BaseDownloader
-from ...exceptions import CloudflaredError, DownloadError
-from ...logging_config import setup_logger
+from ...core.exceptions import CloudflaredError, DownloadError
+from ...core.logging_config import setup_logger
 from ...utils.termux import is_termux, install_cloudflared
 
 class FlareDownloader(BaseDownloader):

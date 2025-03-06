@@ -3,8 +3,8 @@ import threading
 import os
 from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
-from ...exceptions import TunnelError
-from ...logging_config import setup_logger, GREEN, RESET
+from ...core.exceptions import TunnelError
+from ...core.logging_config import setup_logger, GREEN, RESET
 from .config import FlareConfig
 from .downloader import FlareDownloader
 

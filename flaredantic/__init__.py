@@ -1,5 +1,5 @@
 from .tunnel.cloudflare import FlareTunnel, FlareConfig
-from .exceptions import (
+from .core.exceptions import (
     CloudflaredError,
     DownloadError,
     TunnelError

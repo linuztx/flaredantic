@@ -1,5 +1,5 @@
 import logging
-from .__version__ import __version__
+from ..__version__ import __version__
 
 # ANSI colors for console output
 GREEN = "\033[92m"
