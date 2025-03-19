@@ -9,3 +9,11 @@ class DownloadError(CloudflaredError):
 class TunnelError(CloudflaredError):
     """Raised when tunnel operations fail"""
     pass
+
+class ServeoError(Exception):
+    """Base exception for Serveo-related errors"""
+    pass
+
+class SSHError(ServeoError):
+    """Raised when SSH operations for Serveo fail"""
+    pass
