@@ -7,7 +7,7 @@ from tqdm import tqdm
 from ...base.downloader import BaseDownloader
 from ...core.exceptions import CloudflaredError, DownloadError
 from ...core.logging_config import setup_logger
-from ...platform.termux import is_termux, cloudflared_installed
+from ...utils.termux import is_termux, cloudflared_installed
 
 class FlareDownloader(BaseDownloader):
     def __init__(self, bin_dir: Path, verbose: bool = False):
