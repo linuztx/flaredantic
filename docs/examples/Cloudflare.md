@@ -1,6 +1,6 @@
-# Flaredantic Examples 📚
+# Flaredantic Cloudflare Examples 📚
 
-This document provides various examples of how to use Flaredantic in different scenarios.
+This document provides various examples of how to use Flaredantic with Cloudflare tunnels in different scenarios.
 
 ## Basic Examples
 
@@ -207,4 +207,4 @@ If you encounter permission issues with binary installation:
 ```bash
 # Fix permissions for the binary directory
 chmod 755 ~/.flaredantic
-```
+``` 

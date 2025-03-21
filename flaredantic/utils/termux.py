@@ -6,7 +6,7 @@ def is_termux() -> bool:
     """Check if running in Termux"""
     return "TERMUX_VERSION" in os.environ
 
-def install_cloudflared() -> Path:
+def cloudflared_installed() -> Path:
     """
     Install termux official cloudflared package if not already installed
     """
