@@ -91,7 +91,7 @@ with FlareTunnel(config) as tunnel:
 #### Basic Usage with Serveo
 
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 
 # Create a tunnel using Serveo
 config = ServeoConfig(port=8080)
@@ -104,7 +104,7 @@ with ServeoTunnel(config) as tunnel:
 #### TCP Forwarding with Serveo
 
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 
 # Create a TCP tunnel using Serveo
 config = ServeoConfig(port=5432, tcp=True)
@@ -118,7 +118,7 @@ with ServeoTunnel(config) as tunnel:
 
 ```python
 from flaredantic import FlareTunnel, FlareConfig
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 from pathlib import Path
 
 # Configure Cloudflare tunnel with custom settings
