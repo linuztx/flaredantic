@@ -7,7 +7,7 @@ This document provides various examples of how to use Flaredantic with Serveo tu
 ### Simple HTTP Server
 ```python
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 
 # Create a basic HTTP server
 server = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
@@ -21,7 +21,7 @@ with ServeoTunnel(config) as tunnel:
 
 ### TCP Database Connection
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 import psycopg2
 
 # Create TCP tunnel to a PostgreSQL database
@@ -55,7 +55,7 @@ with ServeoTunnel(config) as tunnel:
 
 ### Django Development Server
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 import subprocess
 
 # Start Django development server
@@ -79,7 +79,7 @@ with ServeoTunnel(config) as tunnel:
 ### FastAPI with Background Tasks
 ```python
 from fastapi import FastAPI
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 import uvicorn
 
 app = FastAPI()
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 ### Flask Application
 ```python
 from flask import Flask
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 import threading
 
 app = Flask(__name__)
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
 ### SSH Server Access
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 import subprocess
 
 # Create a TCP tunnel to local SSH server (usually port 22)
@@ -157,7 +157,7 @@ with ServeoTunnel(config) as tunnel:
 
 ### Redis Server Access
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
+from flaredantic import ServeoTunnel, ServeoConfig
 import redis
 import time
 
@@ -187,8 +187,7 @@ with ServeoTunnel(config) as tunnel:
 
 ### SSH Client Check
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
-from flaredantic import SSHError, ServeoError
+from flaredantic import ServeoTunnel, ServeoConfig, SSHError, ServeoError
 from flaredantic.utils.ssh import is_ssh_installed
 
 def create_serveo_tunnel(port: int, tcp: bool = False):
@@ -220,8 +219,7 @@ if tunnel:
 
 ### Serveo Availability Check
 ```python
-from flaredantic.tunnel.serveo import ServeoTunnel, ServeoConfig
-from flaredantic import ServeoError
+from flaredantic import ServeoTunnel, ServeoConfig, ServeoError
 from flaredantic.utils.serveo import is_serveo_up
 
 def create_tunnel_if_serveo_available(port: int):
