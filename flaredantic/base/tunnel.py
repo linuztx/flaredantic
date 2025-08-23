@@ -8,7 +8,7 @@ class BaseTunnel(ABC):
 
     def __init__(self) -> None:
         self.tunnel_url: Optional[str] = None
-        self.logger: Optional[logging.Logger] = None
+        self.logger: logging.Logger
         self.binary_path: Optional[Path] = None
 
     @abstractmethod

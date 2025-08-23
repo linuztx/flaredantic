@@ -32,6 +32,10 @@ class ServeoTunnel(BaseTunnel):
     def _extract_tunnel_url(self, process: subprocess.Popen) -> None:
         """Extract tunnel URL from serveo output"""
         self.logger.debug("Starting tunnel URL extraction...")
+        if process.stdout is None:
+            self.logger.error("Process stdout is not available")
+            return
+            
         while not self._stop_event.is_set():
             line = process.stdout.readline()
             if not line:

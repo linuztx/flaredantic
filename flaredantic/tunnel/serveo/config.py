@@ -5,6 +5,6 @@ from pathlib import Path
 @dataclass
 class ServeoConfig(BaseConfig):
     """Configuration for Serveo tunnel"""
-    ssh_dir: str = Path.home() / ".flaredantic" / "ssh"
-    known_host_file: str = ssh_dir / "known_hosts"
+    ssh_dir: Path = Path.home() / ".flaredantic" / "ssh"
+    known_host_file: Path = Path.home() / ".flaredantic" / "ssh" / "known_hosts"
     tcp: bool = False
