@@ -3,7 +3,7 @@ from ...base.config import BaseConfig
 
 
 @dataclass
-class DevTunnelConfig(BaseConfig):
+class MicrosoftConfig(BaseConfig):
     """Configuration for Microsoft Dev Tunnel"""
     tunnel_id: str = "flaredantic"
     device_login: bool = True

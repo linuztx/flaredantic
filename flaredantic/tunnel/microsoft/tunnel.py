@@ -5,15 +5,24 @@ from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
 from ...core.exceptions import TunnelError
 from ...core.logging_config import setup_logger, GREEN, RESET
-from .config import DevTunnelConfig
-from .downloader import DevTunnelDownloader
+from .config import MicrosoftConfig
+from .downloader import MicrosoftDownloader
 
 
-class DevTunnel(BaseTunnel):
-    def __init__(self, config: Union[DevTunnelConfig, dict]):
+class MicrosoftTunnel(BaseTunnel):
+    """
+    Microsoft Dev Tunnel implementation
+    """
+    def __init__(self, config: Union[MicrosoftConfig, dict]):
+        """
+        Initialize Microsoft Tunnel
+
+        Args:
+            config: MicrosoftConfig object or dict with configuration
+        """
         super().__init__()
         if isinstance(config, dict):
-            self.config = DevTunnelConfig(**config)
+            self.config = MicrosoftConfig(**config)
         else:
             self.config = config
 
@@ -29,10 +38,14 @@ class DevTunnel(BaseTunnel):
         return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
     def _ensure_logged_in(self) -> None:
+        """
+        Ensure user is logged in to Microsoft Dev Tunnel.
+        Handles device login flow if not logged in.
+        """
         # Check login status
         result = self._run_cmd(["user", "show"])
         if result.returncode == 0 and "Logged in as" in result.stdout:
-            self.logger.debug("User already logged in to devtunnel")
+            self.logger.debug("User already logged in to Microsoft DevTunnel")
             return
 
         # Trigger device login and stream output to capture device code promptly
@@ -68,9 +81,12 @@ class DevTunnel(BaseTunnel):
         # Re-check login status
         result = self._run_cmd(["user", "show"])
         if result.returncode != 0 or "Logged in as" not in result.stdout:
-            raise TunnelError("Dev Tunnel login failed or not completed")
+            raise TunnelError("Microsoft DevTunnel login failed or not completed")
 
     def _ensure_tunnel(self) -> None:
+        """
+        Ensure tunnel and port are created
+        """
         # Create tunnel if it doesn't exist
         show = self._run_cmd(["show", self.config.tunnel_id])
         if show.returncode != 0:
@@ -90,6 +106,9 @@ class DevTunnel(BaseTunnel):
                 raise TunnelError(f"Failed to create port: {port_create.stdout}")
 
     def _extract_urls_from_line(self, line: str) -> Optional[str]:
+        """
+        Extract tunnel URL from a line of output
+        """
         if line.startswith("Connect via browser:"):
             parts = line.split(":", 1)[1].strip()
             urls = [u.strip() for u in parts.split(",")]
@@ -97,7 +116,10 @@ class DevTunnel(BaseTunnel):
         return None
 
     def _extract_tunnel_url(self, process: subprocess.Popen) -> None:
-        self.logger.debug("Starting devtunnel URL extraction...")
+        """
+        Extract tunnel URL from process output
+        """
+        self.logger.debug("Starting Microsoft DevTunnel URL extraction...")
         if process.stdout is None:
             self.logger.error("Process stdout is not available")
             return
@@ -126,14 +148,23 @@ class DevTunnel(BaseTunnel):
                     return
 
     def start(self) -> str:
+        """
+        Start the Microsoft DevTunnel
+
+        Returns:
+            Tunnel URL
+        
+        Raises:
+            TunnelError: If tunnel fails to start
+        """
         if not self.binary_path:
-            downloader = DevTunnelDownloader(self.config.bin_dir, self.config.verbose)
+            downloader = MicrosoftDownloader(self.config.bin_dir, self.config.verbose)
             self.binary_path = downloader.download()
 
         self._ensure_logged_in()
         self._ensure_tunnel()
 
-        self.logger.info(f"Starting DevTunnel tunnel on port {self.config.port}...")
+        self.logger.info(f"Starting Microsoft DevTunnel tunnel on port {self.config.port}...")
 
         try:
             # Start hosting process and extract URL asynchronously
@@ -155,20 +186,22 @@ class DevTunnel(BaseTunnel):
             url_thread.join(timeout=self.config.timeout)
 
             if not self.tunnel_url:
-                raise TunnelError("Timeout waiting for dev tunnel URL")
+                raise TunnelError("Timeout waiting for Microsoft DevTunnel URL")
 
             return self.tunnel_url
         except Exception as e:
-            self.logger.error(f"Failed to start dev tunnel: {str(e)}")
+            self.logger.error(f"Failed to start Microsoft DevTunnel: {str(e)}")
             self.stop()
-            raise TunnelError(f"Failed to start dev tunnel: {str(e)}") from e
+            raise TunnelError(f"Failed to start Microsoft DevTunnel: {str(e)}") from e
 
     def stop(self) -> None:
+        """
+        Stop the Microsoft DevTunnel
+        """
         self._stop_event.set()
         if self.tunnel_process:
-            self.logger.info("Stopping DevTunnel host...")
+            self.logger.info("Stopping Microsoft DevTunnel host...")
             self.tunnel_process.terminate()
             self.tunnel_process.wait()
             self.tunnel_process = None
             self.tunnel_url = None
-

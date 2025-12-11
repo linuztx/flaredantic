@@ -8,18 +8,43 @@ from ...core.exceptions import DownloadError
 from ...core.logging_config import setup_logger
 
 
-class DevTunnelDownloader(BaseDownloader):
+class MicrosoftDownloader(BaseDownloader):
+    """
+    Downloader for Microsoft DevTunnel binary
+    """
     def __init__(self, bin_dir: Path, verbose: bool = False):
+        """
+        Initialize downloader
+
+        Args:
+            bin_dir: Directory to install binary
+            verbose: Enable verbose logging
+        """
         super().__init__(bin_dir, verbose)
         self.logger = setup_logger(verbose)
 
     @property
     def _platform_info(self) -> Tuple[str, str]:
+        """
+        Get current platform information
+
+        Returns:
+            Tuple of (system, architecture)
+        """
         system = platform.system().lower()
         arch = platform.machine().lower()
         return system, arch
 
     def _get_download_url(self) -> Tuple[str, str]:
+        """
+        Get download URL for current platform
+
+        Returns:
+            Tuple of (download_url, binary_name)
+
+        Raises:
+            DownloadError: If platform is not supported
+        """
         system, arch = self._platform_info
         base = "https://tunnelsassetsprod.blob.core.windows.net/cli/"
 
@@ -33,19 +58,28 @@ class DevTunnelDownloader(BaseDownloader):
         else:
             raise DownloadError(f"Unsupported platform: {system} {arch}")
 
-        return base + filename, "devtunnel"
+        return base + filename, "microsoft"
 
     def download(self) -> Path:
-        install_path = self.bin_dir / "devtunnel"
+        """
+        Download and install Microsoft DevTunnel binary
+
+        Returns:
+            Path to installed binary
+
+        Raises:
+            DownloadError: If download fails
+        """
+        install_path = self.bin_dir / "microsoft"
 
         if install_path.exists():
             return install_path
 
         url, _ = self._get_download_url()
-        download_path = self.bin_dir / "devtunnel.download"
+        download_path = self.bin_dir / "microsoft.download"
 
         try:
-            self.logger.info(f"Downloading devtunnel from: {url}")
+            self.logger.info(f"Downloading Microsoft DevTunnel from: {url}")
             response = requests.get(url, stream=True)
             response.raise_for_status()
 
@@ -54,7 +88,7 @@ class DevTunnelDownloader(BaseDownloader):
                 total=total_size,
                 unit='iB',
                 unit_scale=True,
-                desc="Downloading devtunnel",
+                desc="Downloading Microsoft DevTunnel",
                 disable=False
             ) as pbar:
                 for chunk in response.iter_content(chunk_size=8192):
@@ -63,9 +97,8 @@ class DevTunnelDownloader(BaseDownloader):
 
             download_path.rename(install_path)
             install_path.chmod(0o755)
-            self.logger.info("Successfully installed devtunnel binary")
+            self.logger.info("Successfully installed Microsoft DevTunnel binary")
             return install_path
         except Exception as e:
-            self.logger.error(f"Failed to download devtunnel: {str(e)}")
-            raise DownloadError(f"Failed to download devtunnel: {str(e)}") from e
-
+            self.logger.error(f"Failed to download Microsoft DevTunnel: {str(e)}")
+            raise DownloadError(f"Failed to download Microsoft DevTunnel: {str(e)}") from e

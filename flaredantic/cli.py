@@ -3,7 +3,7 @@ import signal
 import sys
 from . import FlareTunnel, FlareConfig
 from . import ServeoTunnel, ServeoConfig
-from . import DevTunnel, DevTunnelConfig
+from . import MicrosoftTunnel, MicrosoftConfig
 
 def signal_handler(sig, frame):
     sys.exit(0)
@@ -37,7 +37,7 @@ def main():
 
     parser.add_argument(
         "--tunnel",
-        choices=["cloudflare", "serveo", "devtunnel"],
+        choices=["cloudflare", "serveo", "microsoft"],
         default="cloudflare",
         help="Tunnel provider to use"
     )
@@ -74,13 +74,13 @@ def main():
             tcp=args.tcp
         )
         tunnel = ServeoTunnel(config)
-    else:  # devtunnel
-        config = DevTunnelConfig(
+    else:  # microsoft
+        config = MicrosoftConfig(
             port=args.port,
             timeout=args.timeout,
             verbose=args.verbose
         )
-        tunnel = DevTunnel(config)
+        tunnel = MicrosoftTunnel(config)
     
     try:
         with tunnel:
@@ -91,4 +91,4 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -1,6 +1,6 @@
 from .tunnel.cloudflare import FlareTunnel, FlareConfig
 from .tunnel.serveo import ServeoTunnel, ServeoConfig
-from .tunnel.devtunnel import DevTunnel, DevTunnelConfig
+from .tunnel.microsoft import MicrosoftTunnel, MicrosoftConfig
 from .core.exceptions import (
     CloudflaredError,
     DownloadError,
@@ -23,9 +23,9 @@ __all__ = [
     "ServeoTunnel",
     "ServeoConfig",
 
-    # DevTunnel provider
-    "DevTunnel",
-    "DevTunnelConfig",
+    # Microsoft provider
+    "MicrosoftTunnel",
+    "MicrosoftConfig",
 
     # Exceptions
     "CloudflaredError",
