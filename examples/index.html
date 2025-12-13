@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flaredantic - Tunnel Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a25;
+      --accent: #6366f1;
+      --accent-glow: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #2a2a3a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.08), transparent);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--success));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.25rem;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--border);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.running {
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .status-dot.starting {
+      background: var(--warning);
+      box-shadow: 0 0 10px var(--warning);
+    }
+
+    .status-dot.error {
+      background: var(--error);
+      box-shadow: 0 0 10px var(--error);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-text {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .url-display {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+
+    .url-display a {
+      flex: 1;
+      color: var(--success);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+    }
+
+    .url-display a:hover {
+      text-decoration: underline;
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      padding: 0.5rem 0.75rem;
+      background: rgba(16, 185, 129, 0.2);
+      border: none;
+      border-radius: 6px;
+      color: var(--success);
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(16, 185, 129, 0.3);
+    }
+
+    .events-log {
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      background: var(--bg-primary);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .event-item {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .event-item:last-child {
+      border-bottom: none;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .event-badge {
+      flex-shrink: 0;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .event-badge.downloading { background: rgba(99, 102, 241, 0.2); color: var(--accent-glow); }
+    .event-badge.download_progress { background: rgba(99, 102, 241, 0.2); color: var(--accent-glow); }
+    .event-badge.download_complete { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .event-badge.creating_tunnel { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .event-badge.tunnel_url { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .event-badge.tunnel_stopped { background: rgba(100, 116, 139, 0.2); color: var(--text-muted); }
+    .event-badge.error { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+    .event-badge.info { background: rgba(99, 102, 241, 0.2); color: var(--accent-glow); }
+
+    .event-message {
+      color: var(--text-secondary);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--bg-tertiary);
+      border-radius: 2px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🔥</div>
+        <h1>Flaredantic</h1>
+      </div>
+      <p class="tagline">Expose your local servers to the world</p>
+    </header>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">⚙️</div>
+        <h2>Configuration</h2>
+      </div>
+
+      <div class="form-group">
+        <label for="provider">Tunnel Provider</label>
+        <select id="provider">
+          <option value="cloudflare">☁️ Cloudflare (Quick Start)</option>
+          <option value="serveo">🔗 Serveo (SSH-based)</option>
+          <option value="microsoft">🪟 Microsoft Dev Tunnels</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="port">Local Port</label>
+        <input type="number" id="port" value="8000" min="1" max="65535">
+      </div>
+
+      <div class="btn-row">
+        <button id="startBtn" class="btn-primary">Start Tunnel</button>
+        <button id="stopBtn" class="btn-secondary" disabled>Stop</button>
+      </div>
+    </div>
+
+    <div class="card status-card">
+      <div class="card-header">
+        <div class="card-icon">📡</div>
+        <h2>Status</h2>
+      </div>
+
+      <div class="status-indicator">
+        <div id="statusDot" class="status-dot"></div>
+        <span id="statusText" class="status-text">Idle</span>
+      </div>
+
+      <div id="urlContainer" class="url-display" style="display: none;">
+        <a id="tunnelUrl" href="#" target="_blank"></a>
+        <button class="copy-btn" onclick="copyUrl()">Copy</button>
+      </div>
+
+      <div id="progressContainer" style="display: none;">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <h2>Live Events</h2>
+      </div>
+
+      <div id="eventsLog" class="events-log">
+        <div class="empty-state">Events will appear here...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const providerSelect = document.getElementById('provider');
+    const portInput = document.getElementById('port');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const urlContainer = document.getElementById('urlContainer');
+    const tunnelUrl = document.getElementById('tunnelUrl');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const eventsLog = document.getElementById('eventsLog');
+
+    let eventSource = null;
+    let isFirstEvent = true;
+
+    function setStatus(status, text) {
+      statusDot.className = 'status-dot ' + status;
+      statusText.textContent = text;
+    }
+
+    function addEvent(event, message) {
+      if (isFirstEvent) {
+        eventsLog.innerHTML = '';
+        isFirstEvent = false;
+      }
+
+      const item = document.createElement('div');
+      item.className = 'event-item';
+      item.innerHTML = `
+        <span class="event-badge ${event}">${event.replace('_', ' ')}</span>
+        <span class="event-message">${message}</span>
+      `;
+      eventsLog.insertBefore(item, eventsLog.firstChild);
+
+      // Keep max 50 events
+      while (eventsLog.children.length > 50) {
+        eventsLog.removeChild(eventsLog.lastChild);
+      }
+    }
+
+    function copyUrl() {
+      navigator.clipboard.writeText(tunnelUrl.href).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    }
+
+    function connectSSE() {
+      if (eventSource) {
+        eventSource.close();
+      }
+
+      eventSource = new EventSource('/events');
+
+      eventSource.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        
+        // Don't log download_progress - just update the progress bar
+        if (data.event !== 'download_progress') {
+          addEvent(data.event, data.message);
+        }
+
+        switch (data.event) {
+          case 'downloading':
+          case 'creating_tunnel':
+            setStatus('starting', data.message);
+            break;
+
+          case 'download_progress':
+            progressContainer.style.display = 'block';
+            if (data.data && data.data.percent) {
+              progressFill.style.width = data.data.percent + '%';
+              // Update status text with current progress
+              setStatus('starting', `Downloading: ${data.data.percent.toFixed(1)}%`);
+            }
+            break;
+
+          case 'download_complete':
+            progressContainer.style.display = 'none';
+            progressFill.style.width = '0%';
+            break;
+
+          case 'tunnel_url':
+            setStatus('running', 'Tunnel Active');
+            if (data.data && data.data.url) {
+              tunnelUrl.href = data.data.url;
+              tunnelUrl.textContent = data.data.url;
+              urlContainer.style.display = 'flex';
+            }
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            break;
+
+          case 'tunnel_stopped':
+            setStatus('', 'Idle');
+            urlContainer.style.display = 'none';
+            progressContainer.style.display = 'none';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            break;
+
+          case 'error':
+            setStatus('error', 'Error');
+            progressContainer.style.display = 'none';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            break;
+        }
+      };
+
+      eventSource.onerror = () => {
+        setTimeout(connectSSE, 3000);
+      };
+    }
+
+    async function startTunnel() {
+      startBtn.disabled = true;
+      setStatus('starting', 'Starting...');
+
+      try {
+        const response = await fetch('/tunnel/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: providerSelect.value,
+            port: parseInt(portInput.value),
+            verbose: false
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.detail || 'Failed to start tunnel');
+        }
+
+        stopBtn.disabled = false;
+      } catch (error) {
+        addEvent('error', error.message);
+        setStatus('error', 'Failed');
+        startBtn.disabled = false;
+      }
+    }
+
+    async function stopTunnel() {
+      stopBtn.disabled = true;
+
+      try {
+        await fetch('/tunnel/stop', { method: 'POST' });
+        setStatus('', 'Idle');
+        urlContainer.style.display = 'none';
+        startBtn.disabled = false;
+      } catch (error) {
+        addEvent('error', error.message);
+        stopBtn.disabled = false;
+      }
+    }
+
+    // Check initial status
+    async function checkStatus() {
+      try {
+        const response = await fetch('/tunnel/status');
+        const data = await response.json();
+
+        if (data.status === 'running') {
+          setStatus('running', 'Tunnel Active');
+          tunnelUrl.href = data.url;
+          tunnelUrl.textContent = data.url;
+          urlContainer.style.display = 'flex';
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Failed to check status:', error);
+      }
+    }
+
+    startBtn.addEventListener('click', startTunnel);
+    stopBtn.addEventListener('click', stopTunnel);
+
+    // Initialize
+    connectSSE();
+    checkStatus();
+  </script>
+</body>
+</html>
+

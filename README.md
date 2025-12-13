@@ -20,7 +20,7 @@ Flaredantic is a Python library that simplifies the process of creating tunnels 
 - 🚀 Easy-to-use Python API
 - 💻 Command-line interface (CLI)
 - 📦 Automatic binary management
-- 🔄 Multiple tunnel providers (Cloudflare, Serveo, Microsoft DevTunnel)
+- 🔄 Multiple tunnel providers (Cloudflare, Serveo, Microsoft Dev Tunnels)
 - 🌐 TCP forwarding support (Serveo)
 - 🎯 Cross-platform support (Windows, macOS, Linux)
 - 📱 Android support via Termux
@@ -60,7 +60,7 @@ flare --port 8080 -v
 # Use Serveo tunnel instead
 flare --port 8080 --tunnel serveo
 
-# Use Microsoft DevTunnel
+# Use Microsoft Dev Tunnels
 flare --port 8080 --tunnel microsoft
 
 # TCP forwarding with Serveo
@@ -104,12 +104,12 @@ with ServeoTunnel(config) as tunnel:
     input("Press Enter to stop the tunnel...")
 ```
 
-#### Basic Usage with Microsoft DevTunnel
+#### Basic Usage with Microsoft Dev Tunnels
 
 ```python
 from flaredantic import MicrosoftTunnel, MicrosoftConfig
 
-# Create a tunnel using Microsoft DevTunnel
+# Create a tunnel using Microsoft Dev Tunnels
 config = MicrosoftConfig(port=8080)
 with MicrosoftTunnel(config) as tunnel:
     print(f"Your service is available at: {tunnel.tunnel_url}")
@@ -154,7 +154,7 @@ serveo_config = ServeoConfig(
     verbose=True  # Enable detailed logging
 )
 
-# Configure Microsoft DevTunnel with custom settings
+# Configure Microsoft Dev Tunnels with custom settings
 microsoft_config = MicrosoftConfig(
     port=8080,
     bin_dir=Path.home() / ".my-tunnels",
@@ -216,7 +216,7 @@ if __name__ == '__main__':
 | verbose | bool | False | Show detailed progress and debug output |
 | tcp | bool | False | Enable TCP forwarding instead of HTTP |
 
-### Microsoft DevTunnel Options
+### Microsoft Dev Tunnels Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -231,7 +231,7 @@ if __name__ == '__main__':
 
 - **Cloudflare tunnel**: No additional requirements (binary auto-downloaded)
 - **Serveo tunnel**: Requires SSH client to be installed
-- **Microsoft DevTunnel**: No additional requirements (binary auto-downloaded)
+- **Microsoft Dev Tunnels**: No additional requirements (binary auto-downloaded)
   - **Note**: Currently only supports Linux and macOS.
 
 > **❗️Note:** Serveo servers might occasionally be unavailable as they are a free service. Flaredantic automatically detects when Serveo is down and provides a clear error message. Consider using Cloudflare tunnels if you need guaranteed availability.

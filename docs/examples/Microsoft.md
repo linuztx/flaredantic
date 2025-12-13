@@ -1,8 +1,8 @@
-# Flaredantic Microsoft DevTunnel Examples 📚
+# Flaredantic Microsoft Dev Tunnels Examples 📚
 
-This document provides various examples of how to use Flaredantic with Microsoft DevTunnels in different scenarios.
+This document provides various examples of how to use Flaredantic with Microsoft Dev Tunnelss in different scenarios.
 
-> **⚠️ Note:** Microsoft DevTunnel currently only supports **Linux** and **macOS** platforms. Windows support is not yet available in this library.
+> **⚠️ Note:** Microsoft Dev Tunnels currently only supports **Linux** and **macOS** platforms. Windows support is not yet available in this library.
 
 ## Basic Examples
 
@@ -72,7 +72,7 @@ cd ~/.flaredantic/
 ## Advanced Examples
 
 ### Device Login Flow
-Microsoft DevTunnels support device login authentication (enabled by default):
+Microsoft Dev Tunnelss support device login authentication (enabled by default):
 ```python
 from flaredantic import MicrosoftTunnel, MicrosoftConfig
 
@@ -99,7 +99,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"status": "online", "provider": "Microsoft DevTunnel"}
+    return {"status": "online", "provider": "Microsoft Dev Tunnels"}
 
 def start_tunnel():
     config = MicrosoftConfig(port=8000)

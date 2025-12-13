@@ -5,6 +5,7 @@ from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
 from ...core.exceptions import TunnelError, ServeoError, SSHError
 from ...core.logging_config import setup_logger, GREEN, RESET
+from ...core.notify import NotifyEvent
 from .config import ServeoConfig
 from ...utils.serveo import is_serveo_up
 from ...utils.ssh import is_ssh_installed
@@ -65,16 +66,19 @@ class ServeoTunnel(BaseTunnel):
         Returns:
             Tunnel URL once available
         """
+        self.notify(NotifyEvent.CREATING_TUNNEL, f"Starting Serveo tunnel on port {self.config.port}...")
         self.logger.info(f"Starting Serveo tunnel on port {self.config.port}...")
         
         # Check for SSH client first
         if not is_ssh_installed():
             self.logger.error("SSH client is not installed - required for Serveo tunnels")
+            self.notify(NotifyEvent.ERROR, "SSH client is not installed")
             raise SSHError("SSH client is not installed. Install OpenSSH and try again.")
 
         # Then check Serveo availability
         if not is_serveo_up():
             self.logger.error("Serveo server is currently unavailable")
+            self.notify(NotifyEvent.ERROR, "Serveo server is currently unavailable")
             raise ServeoError("Serveo server is currently down")
 
         try:
@@ -116,12 +120,15 @@ class ServeoTunnel(BaseTunnel):
 
             if not self.tunnel_url:
                 self.logger.error("Timeout waiting for tunnel URL")
+                self.notify(NotifyEvent.ERROR, "Timeout waiting for tunnel URL")
                 raise ServeoError("Timeout waiting for tunnel URL")
             
+            self.notify(NotifyEvent.TUNNEL_URL, self.tunnel_url, {"url": self.tunnel_url})
             return self.tunnel_url
         
         except Exception as e:
             self.logger.error(f"Failed to start tunnel: {str(e)}")
+            self.notify(NotifyEvent.ERROR, f"Failed to start tunnel: {str(e)}")
             self.stop()
             raise ServeoError(f"Failed to start tunnel: {str(e)}") from e
 
@@ -134,4 +141,5 @@ class ServeoTunnel(BaseTunnel):
             self.tunnel_process.wait()
             self.tunnel_process = None
             self.tunnel_url = None
+            self.notify(NotifyEvent.TUNNEL_STOPPED, "Serveo tunnel stopped")
             self.logger.debug("Tunnel stopped successfully") 

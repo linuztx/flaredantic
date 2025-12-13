@@ -5,6 +5,7 @@ from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
 from ...core.exceptions import TunnelError
 from ...core.logging_config import setup_logger, GREEN, RESET
+from ...core.notify import NotifyEvent
 from .config import MicrosoftConfig
 from .downloader import MicrosoftDownloader
 
@@ -45,7 +46,8 @@ class MicrosoftTunnel(BaseTunnel):
         # Check login status
         result = self._run_cmd(["user", "show"])
         if result.returncode == 0 and "Logged in as" in result.stdout:
-            self.logger.debug("User already logged in to Microsoft DevTunnel")
+            self.logger.debug("User already logged in to Microsoft Dev Tunnels")
+            self.notify(NotifyEvent.INFO, "Already logged in to Microsoft Dev Tunnels")
             return
 
         # Trigger device login and stream output to capture device code promptly
@@ -69,9 +71,14 @@ class MicrosoftTunnel(BaseTunnel):
                 code_match = re.search(r"code:\s*([A-Z0-9-]{4,})", line)
                 if url_match and code_match:
                     self.logger.info(f"Browse to {url_match.group(0)} and enter the code: {GREEN}{code_match.group(1)}{RESET}")
+                    self.notify(NotifyEvent.INFO, f"Login required: {url_match.group(0)} - Code: {code_match.group(1)}", {
+                        "url": url_match.group(0),
+                        "code": code_match.group(1)
+                    })
                     code_announced = True
                 elif url_match:
                     self.logger.info(f"Login required. Open: {GREEN}{url_match.group(0)}{RESET}")
+                    self.notify(NotifyEvent.INFO, f"Login required: {url_match.group(0)}", {"url": url_match.group(0)})
                     code_announced = True
             # Echo informative lines when verbose
             if self.config.verbose:
@@ -81,7 +88,8 @@ class MicrosoftTunnel(BaseTunnel):
         # Re-check login status
         result = self._run_cmd(["user", "show"])
         if result.returncode != 0 or "Logged in as" not in result.stdout:
-            raise TunnelError("Microsoft DevTunnel login failed or not completed")
+            self.notify(NotifyEvent.ERROR, "Microsoft Dev Tunnels login failed or not completed")
+            raise TunnelError("Microsoft Dev Tunnels login failed or not completed")
 
     def _ensure_tunnel(self) -> None:
         """
@@ -119,7 +127,7 @@ class MicrosoftTunnel(BaseTunnel):
         """
         Extract tunnel URL from process output
         """
-        self.logger.debug("Starting Microsoft DevTunnel URL extraction...")
+        self.logger.debug("Starting Microsoft Dev Tunnels URL extraction...")
         if process.stdout is None:
             self.logger.error("Process stdout is not available")
             return
@@ -149,7 +157,7 @@ class MicrosoftTunnel(BaseTunnel):
 
     def start(self) -> str:
         """
-        Start the Microsoft DevTunnel
+        Start the Microsoft Dev Tunnels
 
         Returns:
             Tunnel URL
@@ -164,7 +172,8 @@ class MicrosoftTunnel(BaseTunnel):
         self._ensure_logged_in()
         self._ensure_tunnel()
 
-        self.logger.info(f"Starting Microsoft DevTunnel tunnel on port {self.config.port}...")
+        self.notify(NotifyEvent.CREATING_TUNNEL, f"Starting Microsoft Dev Tunnels on port {self.config.port}...")
+        self.logger.info(f"Starting Microsoft Dev Tunnels tunnel on port {self.config.port}...")
 
         try:
             # Start hosting process and extract URL asynchronously
@@ -186,22 +195,26 @@ class MicrosoftTunnel(BaseTunnel):
             url_thread.join(timeout=self.config.timeout)
 
             if not self.tunnel_url:
-                raise TunnelError("Timeout waiting for Microsoft DevTunnel URL")
+                self.notify(NotifyEvent.ERROR, "Timeout waiting for Microsoft Dev Tunnels URL")
+                raise TunnelError("Timeout waiting for Microsoft Dev Tunnels URL")
 
+            self.notify(NotifyEvent.TUNNEL_URL, self.tunnel_url, {"url": self.tunnel_url})
             return self.tunnel_url
         except Exception as e:
-            self.logger.error(f"Failed to start Microsoft DevTunnel: {str(e)}")
+            self.logger.error(f"Failed to start Microsoft Dev Tunnels: {str(e)}")
+            self.notify(NotifyEvent.ERROR, f"Failed to start Microsoft Dev Tunnels: {str(e)}")
             self.stop()
-            raise TunnelError(f"Failed to start Microsoft DevTunnel: {str(e)}") from e
+            raise TunnelError(f"Failed to start Microsoft Dev Tunnels: {str(e)}") from e
 
     def stop(self) -> None:
         """
-        Stop the Microsoft DevTunnel
+        Stop the Microsoft Dev Tunnels
         """
         self._stop_event.set()
         if self.tunnel_process:
-            self.logger.info("Stopping Microsoft DevTunnel host...")
+            self.logger.info("Stopping Microsoft Dev Tunnels host...")
             self.tunnel_process.terminate()
             self.tunnel_process.wait()
             self.tunnel_process = None
             self.tunnel_url = None
+            self.notify(NotifyEvent.TUNNEL_STOPPED, "Microsoft Dev Tunnels stopped")

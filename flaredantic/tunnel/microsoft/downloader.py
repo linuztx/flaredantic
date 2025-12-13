@@ -1,16 +1,18 @@
 import platform
 import requests
+import time
 from pathlib import Path
 from typing import Tuple
 from tqdm import tqdm
 from ...base.downloader import BaseDownloader
 from ...core.exceptions import DownloadError
 from ...core.logging_config import setup_logger
+from ...core.notify import NotifyEvent
 
 
 class MicrosoftDownloader(BaseDownloader):
     """
-    Downloader for Microsoft DevTunnel binary
+    Downloader for Microsoft Dev Tunnels binary
     """
     def __init__(self, bin_dir: Path, verbose: bool = False):
         """
@@ -62,7 +64,7 @@ class MicrosoftDownloader(BaseDownloader):
 
     def download(self) -> Path:
         """
-        Download and install Microsoft DevTunnel binary
+        Download and install Microsoft Dev Tunnels binary
 
         Returns:
             Path to installed binary
@@ -79,26 +81,45 @@ class MicrosoftDownloader(BaseDownloader):
         download_path = self.bin_dir / "microsoft.download"
 
         try:
-            self.logger.info(f"Downloading Microsoft DevTunnel from: {url}")
+            self.logger.info(f"Downloading Microsoft Dev Tunnels from: {url}")
+            self.notify(NotifyEvent.DOWNLOADING, "Downloading Microsoft Dev Tunnels binary...")
             response = requests.get(url, stream=True)
             response.raise_for_status()
 
             total_size = int(response.headers.get('content-length', 0))
+            downloaded = 0
+            last_reported_time = 0.0
+
             with open(download_path, 'wb') as f, tqdm(
                 total=total_size,
                 unit='iB',
                 unit_scale=True,
-                desc="Downloading Microsoft DevTunnel",
+                desc="Downloading Microsoft Dev Tunnels",
                 disable=False
             ) as pbar:
                 for chunk in response.iter_content(chunk_size=8192):
                     size = f.write(chunk)
                     pbar.update(size)
+                    downloaded += size
+                    
+                    if total_size:
+                        current_time = time.time()
+                        progress = (downloaded / total_size * 100)
+                        # Throttle updates to every 0.1 seconds or when complete
+                        if (current_time - last_reported_time >= 0.1) or progress >= 100.0:
+                            self.notify(NotifyEvent.DOWNLOAD_PROGRESS, f"Downloading: {progress:.1f}%", {
+                                "downloaded": downloaded,
+                                "total": total_size,
+                                "percent": progress
+                            })
+                            last_reported_time = current_time
 
             download_path.rename(install_path)
             install_path.chmod(0o755)
-            self.logger.info("Successfully installed Microsoft DevTunnel binary")
+            self.logger.info("Successfully installed Microsoft Dev Tunnels binary")
+            self.notify(NotifyEvent.DOWNLOAD_COMPLETE, "Microsoft Dev Tunnels binary installed successfully")
             return install_path
         except Exception as e:
-            self.logger.error(f"Failed to download Microsoft DevTunnel: {str(e)}")
-            raise DownloadError(f"Failed to download Microsoft DevTunnel: {str(e)}") from e
+            self.logger.error(f"Failed to download Microsoft Dev Tunnels: {str(e)}")
+            self.notify(NotifyEvent.ERROR, f"Failed to download Microsoft Dev Tunnels: {str(e)}")
+            raise DownloadError(f"Failed to download Microsoft Dev Tunnels: {str(e)}") from e

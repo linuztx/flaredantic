@@ -5,6 +5,7 @@ from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
 from ...core.exceptions import TunnelError
 from ...core.logging_config import setup_logger, GREEN, RESET
+from ...core.notify import NotifyEvent
 from .config import FlareConfig
 from .downloader import FlareDownloader
 
@@ -65,6 +66,7 @@ class FlareTunnel(BaseTunnel):
             downloader = FlareDownloader(self.config.bin_dir, self.config.verbose)
             self.binary_path = downloader.download()
 
+        self.notify(NotifyEvent.CREATING_TUNNEL, f"Starting Cloudflare tunnel on port {self.config.port}...")
         self.logger.info(f"Starting Cloudflare tunnel on port {self.config.port}...")
         try:
             self.tunnel_process = subprocess.Popen(
@@ -94,12 +96,15 @@ class FlareTunnel(BaseTunnel):
 
             if not self.tunnel_url:
                 self.logger.error("Timeout waiting for tunnel URL")
+                self.notify(NotifyEvent.ERROR, "Timeout waiting for tunnel URL")
                 raise TunnelError("Timeout waiting for tunnel URL")
 
+            self.notify(NotifyEvent.TUNNEL_URL, self.tunnel_url, {"url": self.tunnel_url})
             return self.tunnel_url
 
         except Exception as e:
             self.logger.error(f"Failed to start tunnel: {str(e)}")
+            self.notify(NotifyEvent.ERROR, f"Failed to start tunnel: {str(e)}")
             self.stop()
             raise TunnelError(f"Failed to start tunnel: {str(e)}") from e
 
@@ -112,4 +117,5 @@ class FlareTunnel(BaseTunnel):
             self.tunnel_process.wait()
             self.tunnel_process = None
             self.tunnel_url = None
+            self.notify(NotifyEvent.TUNNEL_STOPPED, "Cloudflare tunnel stopped")
             self.logger.debug("Tunnel stopped successfully") 
