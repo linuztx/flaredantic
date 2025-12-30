@@ -47,14 +47,14 @@ class ServeoTunnel(BaseTunnel):
             # Handle TCP port allocation
             if self.config.tcp and "Allocated port" in line:
                 port = line.split("Allocated port")[1].split()[0]
-                self.tunnel_url = f"serveo.net:{port}"
+                self.tunnel_url = f"serveousercontent.com:{port}"
                 self.logger.info(f"TCP tunnel available at: {GREEN}{self.tunnel_url}{RESET}")
                 return
                 
             # Handle HTTP URL detection
-            elif not self.config.tcp and "serveo.net" in line and "https://" in line:
+            elif not self.config.tcp and "serveousercontent.com" in line and "https://" in line:
                 start = line.find("https://")
-                end = line.find(".serveo.net") + len(".serveo.net")
+                end = line.find(".serveousercontent.com") + len(".serveousercontent.com")
                 self.tunnel_url = line[start:end].strip()
                 self.logger.info(f"Tunnel URL: {GREEN}{self.tunnel_url}{RESET}")
                 return
