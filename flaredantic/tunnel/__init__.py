@@ -1,5 +1,6 @@
 from .cloudflare import FlareTunnel, FlareConfig
 from .serveo import ServeoTunnel, ServeoConfig
+from .microsoft import MicrosoftTunnel, MicrosoftConfig
 
 __all__ = [
     # Cloudflare
@@ -8,5 +9,9 @@ __all__ = [
 
     # Serveo
     "ServeoTunnel",
-    "ServeoConfig"
+    "ServeoConfig",
+
+    # Microsoft
+    "MicrosoftTunnel",
+    "MicrosoftConfig"
 ]

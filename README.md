@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Monthly Downloads](https://pepy.tech/badge/flaredantic/month)](https://pepy.tech/project/flaredantic)
 
-Flaredantic is a Python library that simplifies the process of creating tunnels to expose your local services to the internet. It supports both Cloudflare and Serveo tunneling services, making it a user-friendly alternative to ngrok, localtunnel, and similar tools.
+Flaredantic is a Python library that simplifies the process of creating tunnels to expose your local services to the internet. It supports Cloudflare, Serveo, and Microsoft Dev Tunnel services, making it a user-friendly alternative to ngrok, localtunnel, and similar tools.
 
 </div>
 
@@ -20,7 +20,7 @@ Flaredantic is a Python library that simplifies the process of creating tunnels 
 - 🚀 Easy-to-use Python API
 - 💻 Command-line interface (CLI)
 - 📦 Automatic binary management
-- 🔄 Multiple tunnel providers (Cloudflare, Serveo)
+- 🔄 Multiple tunnel providers (Cloudflare, Serveo, Microsoft Dev Tunnels)
 - 🌐 TCP forwarding support (Serveo)
 - 🎯 Cross-platform support (Windows, macOS, Linux)
 - 📱 Android support via Termux
@@ -38,6 +38,8 @@ While tools like ngrok are great, Flaredantic offers several advantages:
 - No rate limiting
 
 Flaredantic makes it dead simple to use tunnels in your Python projects!
+
+> ⚠️ **Warning:** Exposing local services to the internet can be a security risk. Never expose sensitive or unprotected endpoints. Use at your own risk.
 
 ## 🚀 Installation
 
@@ -60,6 +62,9 @@ flare --port 8080 -v
 # Use Serveo tunnel instead
 flare --port 8080 --tunnel serveo
 
+# Use Microsoft Dev Tunnels
+flare --port 8080 --tunnel microsoft
+
 # TCP forwarding with Serveo
 flare --port 5432 --tcp
 ```
@@ -69,7 +74,7 @@ CLI Options:
 -p, --port     Local port to expose (required)
 -t, --timeout  Tunnel start timeout in seconds (default: 30)
 -v, --verbose  Show detailed progress output
---tunnel       Tunnel provider to use [cloudflare, serveo] (default: cloudflare)
+--tunnel       Tunnel provider to use [cloudflare, serveo, microsoft] (default: cloudflare)
 --tcp          Use Serveo with TCP forwarding (overrides --tunnel)
 ```
 
@@ -101,6 +106,19 @@ with ServeoTunnel(config) as tunnel:
     input("Press Enter to stop the tunnel...")
 ```
 
+#### Basic Usage with Microsoft Dev Tunnels
+
+```python
+from flaredantic import MicrosoftTunnel, MicrosoftConfig
+
+# Create a tunnel using Microsoft Dev Tunnels
+config = MicrosoftConfig(port=8080)
+with MicrosoftTunnel(config) as tunnel:
+    print(f"Your service is available at: {tunnel.tunnel_url}")
+    # Your application code here
+    input("Press Enter to stop the tunnel...")
+```
+
 #### TCP Forwarding with Serveo
 
 ```python
@@ -119,6 +137,7 @@ with ServeoTunnel(config) as tunnel:
 ```python
 from flaredantic import FlareTunnel, FlareConfig
 from flaredantic import ServeoTunnel, ServeoConfig
+from flaredantic import MicrosoftTunnel, MicrosoftConfig
 from pathlib import Path
 
 # Configure Cloudflare tunnel with custom settings
@@ -137,8 +156,18 @@ serveo_config = ServeoConfig(
     verbose=True  # Enable detailed logging
 )
 
+# Configure Microsoft Dev Tunnels with custom settings
+microsoft_config = MicrosoftConfig(
+    port=8080,
+    bin_dir=Path.home() / ".my-tunnels",
+    timeout=60,
+    verbose=True,  # Enable detailed logging
+    tunnel_id="flaredantic",  # Custom tunnel ID
+    device_login=True  # Use device login flow
+)
+
 # Create and start tunnel (choose one)
-with FlareTunnel(cloudflare_config) as tunnel:
+with MicrosoftTunnel(microsoft_config) as tunnel:
     print(f"Access your service at: {tunnel.tunnel_url}")
     input("Press Enter to stop the tunnel...")
 ```
@@ -189,10 +218,23 @@ if __name__ == '__main__':
 | verbose | bool | False | Show detailed progress and debug output |
 | tcp | bool | False | Enable TCP forwarding instead of HTTP |
 
+### Microsoft Dev Tunnels Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| port | int | Required | Local port to expose |
+| bin_dir | Path | ~/.flaredantic | Directory for devtunnel binary |
+| timeout | int | 30 | Tunnel start timeout in seconds |
+| verbose | bool | False | Show detailed progress and debug output |
+| tunnel_id | str | "flaredantic" | Custom tunnel ID |
+| device_login | bool | True | Use device login flow |
+
 ## 📦 Requirements
 
 - **Cloudflare tunnel**: No additional requirements (binary auto-downloaded)
 - **Serveo tunnel**: Requires SSH client to be installed
+- **Microsoft Dev Tunnels**: No additional requirements (binary auto-downloaded)
+  - **Note**: Currently only supports Linux and macOS.
 
 > **❗️Note:** Serveo servers might occasionally be unavailable as they are a free service. Flaredantic automatically detects when Serveo is down and provides a clear error message. Consider using Cloudflare tunnels if you need guaranteed availability.
 
@@ -201,5 +243,6 @@ if __name__ == '__main__':
 For more detailed examples and use cases, check out our examples:
 - [Cloudflare Examples](docs/examples/Cloudflare.md) - HTTP Server, Django, FastAPI, Flask
 - [Serveo Examples](docs/examples/Serveo.md) - HTTP, TCP, SSH forwarding, database access
+- [Microsoft Examples](docs/examples/Microsoft.md) - HTTP Server, Custom Tunnel ID, Device Login
 
 ---

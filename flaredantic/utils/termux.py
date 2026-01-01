@@ -12,4 +12,4 @@ def cloudflared_installed() -> Path:
     """
     if shutil.which("cloudflared") is None:
         os.system("pkg install cloudflared -y")
-    return Path(shutil.which("cloudflared"))
+    return Path(shutil.which("cloudflared")) # type: ignore

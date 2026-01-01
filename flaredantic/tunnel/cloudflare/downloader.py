@@ -1,12 +1,14 @@
 import platform
 import requests
 import tarfile
+import time
 from pathlib import Path
 from typing import Tuple
 from tqdm import tqdm
 from ...base.downloader import BaseDownloader
 from ...core.exceptions import CloudflaredError, DownloadError
 from ...core.logging_config import setup_logger
+from ...core.notify import NotifyEvent
 from ...utils.termux import is_termux, cloudflared_installed
 
 class FlareDownloader(BaseDownloader):
@@ -70,11 +72,15 @@ class FlareDownloader(BaseDownloader):
 
         try:
             self.logger.info(f"Downloading cloudflared from: {download_url}")
+            self.notify(NotifyEvent.DOWNLOADING, "Downloading cloudflared binary...")
             response = requests.get(download_url, stream=True)
             response.raise_for_status()
 
             # Download with progress bar (always show progress)
             total_size = int(response.headers.get('content-length', 0))
+            downloaded = 0
+            last_reported_time = 0.0
+            
             with open(download_path, 'wb') as f, tqdm(
                 total=total_size,
                 unit='iB',
@@ -85,6 +91,19 @@ class FlareDownloader(BaseDownloader):
                 for chunk in response.iter_content(chunk_size=8192):
                     size = f.write(chunk)
                     pbar.update(size)
+                    downloaded += size
+                    
+                    if total_size:
+                        current_time = time.time()
+                        progress = (downloaded / total_size * 100)
+                        # Throttle updates to every 0.1 seconds or when complete
+                        if (current_time - last_reported_time >= 0.1) or progress >= 100.0:
+                            self.notify(NotifyEvent.DOWNLOAD_PROGRESS, f"Downloading: {progress:.1f}%", {
+                                "downloaded": downloaded,
+                                "total": total_size,
+                                "percent": progress
+                            })
+                            last_reported_time = current_time
 
             if filename.endswith('.tgz'):
                 self.logger.debug("Extracting .tgz archive...")
@@ -101,8 +120,10 @@ class FlareDownloader(BaseDownloader):
                 install_path.chmod(0o755)
 
             self.logger.info("Successfully installed cloudflared binary")
+            self.notify(NotifyEvent.DOWNLOAD_COMPLETE, "Cloudflared binary installed successfully")
             return install_path
 
         except Exception as e:
             self.logger.error(f"Failed to download cloudflared: {str(e)}")
+            self.notify(NotifyEvent.ERROR, f"Failed to download cloudflared: {str(e)}")
             raise DownloadError(f"Failed to download cloudflared: {str(e)}") from e 

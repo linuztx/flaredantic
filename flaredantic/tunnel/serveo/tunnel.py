@@ -5,6 +5,7 @@ from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
 from ...core.exceptions import TunnelError, ServeoError, SSHError
 from ...core.logging_config import setup_logger, GREEN, RESET
+from ...core.notify import NotifyEvent
 from .config import ServeoConfig
 from ...utils.serveo import is_serveo_up
 from ...utils.ssh import is_ssh_installed
@@ -32,6 +33,10 @@ class ServeoTunnel(BaseTunnel):
     def _extract_tunnel_url(self, process: subprocess.Popen) -> None:
         """Extract tunnel URL from serveo output"""
         self.logger.debug("Starting tunnel URL extraction...")
+        if process.stdout is None:
+            self.logger.error("Process stdout is not available")
+            return
+            
         while not self._stop_event.is_set():
             line = process.stdout.readline()
             if not line:
@@ -42,14 +47,14 @@ class ServeoTunnel(BaseTunnel):
             # Handle TCP port allocation
             if self.config.tcp and "Allocated port" in line:
                 port = line.split("Allocated port")[1].split()[0]
-                self.tunnel_url = f"serveo.net:{port}"
+                self.tunnel_url = f"serveousercontent.com:{port}"
                 self.logger.info(f"TCP tunnel available at: {GREEN}{self.tunnel_url}{RESET}")
                 return
                 
             # Handle HTTP URL detection
-            elif not self.config.tcp and "serveo.net" in line and "https://" in line:
+            elif not self.config.tcp and "serveousercontent.com" in line and "https://" in line:
                 start = line.find("https://")
-                end = line.find(".serveo.net") + len(".serveo.net")
+                end = line.find(".serveousercontent.com") + len(".serveousercontent.com")
                 self.tunnel_url = line[start:end].strip()
                 self.logger.info(f"Tunnel URL: {GREEN}{self.tunnel_url}{RESET}")
                 return
@@ -61,16 +66,19 @@ class ServeoTunnel(BaseTunnel):
         Returns:
             Tunnel URL once available
         """
+        self.notify(NotifyEvent.CREATING_TUNNEL, f"Starting Serveo tunnel on port {self.config.port}...")
         self.logger.info(f"Starting Serveo tunnel on port {self.config.port}...")
         
         # Check for SSH client first
         if not is_ssh_installed():
             self.logger.error("SSH client is not installed - required for Serveo tunnels")
+            self.notify(NotifyEvent.ERROR, "SSH client is not installed")
             raise SSHError("SSH client is not installed. Install OpenSSH and try again.")
 
         # Then check Serveo availability
         if not is_serveo_up():
             self.logger.error("Serveo server is currently unavailable")
+            self.notify(NotifyEvent.ERROR, "Serveo server is currently unavailable")
             raise ServeoError("Serveo server is currently down")
 
         try:
@@ -112,12 +120,15 @@ class ServeoTunnel(BaseTunnel):
 
             if not self.tunnel_url:
                 self.logger.error("Timeout waiting for tunnel URL")
+                self.notify(NotifyEvent.ERROR, "Timeout waiting for tunnel URL")
                 raise ServeoError("Timeout waiting for tunnel URL")
             
+            self.notify(NotifyEvent.TUNNEL_URL, self.tunnel_url, {"url": self.tunnel_url})
             return self.tunnel_url
         
         except Exception as e:
             self.logger.error(f"Failed to start tunnel: {str(e)}")
+            self.notify(NotifyEvent.ERROR, f"Failed to start tunnel: {str(e)}")
             self.stop()
             raise ServeoError(f"Failed to start tunnel: {str(e)}") from e
 
@@ -130,4 +141,5 @@ class ServeoTunnel(BaseTunnel):
             self.tunnel_process.wait()
             self.tunnel_process = None
             self.tunnel_url = None
+            self.notify(NotifyEvent.TUNNEL_STOPPED, "Serveo tunnel stopped")
             self.logger.debug("Tunnel stopped successfully") 

@@ -1,15 +1,21 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Any
 from pathlib import Path
 import logging
+from ..core.notify import notifier, NotifyEvent
+
 
 class BaseTunnel(ABC):
     """Base class for all tunnel implementations"""
 
     def __init__(self) -> None:
         self.tunnel_url: Optional[str] = None
-        self.logger: Optional[logging.Logger] = None
+        self.logger: logging.Logger
         self.binary_path: Optional[Path] = None
+
+    def notify(self, event: NotifyEvent, message: str, data: Optional[Any] = None) -> None:
+        """Send notification to subscribers"""
+        notifier.notify(event, message, data)
 
     @abstractmethod
     def start(self) -> str:

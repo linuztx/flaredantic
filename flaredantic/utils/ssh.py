@@ -1,5 +1,18 @@
-import os
+import subprocess
+import shutil
+
 
 def is_ssh_installed() -> bool:
-    """Check if SSH client is installed"""
-    return os.system('ssh -V > /dev/null 2>&1') == 0 
+    """Check if SSH client is installed (cross-platform)"""
+    if shutil.which("ssh"):
+        return True
+    try:
+        subprocess.run(
+            ["ssh", "-V"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False 
