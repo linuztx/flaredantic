@@ -119,8 +119,13 @@ class MicrosoftDownloader(BaseDownloader):
                             })
                             last_reported_time = current_time
 
+            self.logger.debug(f"Moving binary to: {install_path}")
             download_path.rename(install_path)
-            install_path.chmod(0o755)
+
+            if system != "windows":
+                self.logger.debug("Setting executable permissions")
+                install_path.chmod(0o755)
+                
             self.logger.info("Successfully installed Microsoft Dev Tunnels binary")
             self.notify(NotifyEvent.DOWNLOAD_COMPLETE, "Microsoft Dev Tunnels binary installed successfully")
             return install_path
