@@ -17,3 +17,15 @@ class ServeoError(Exception):
 class SSHError(ServeoError):
     """Raised when SSH operations for Serveo fail"""
     pass
+
+class MicrosoftError(Exception):
+    """Base exception for Microsoft-related errors"""
+    pass
+
+class MicrosoftDownloadError(MicrosoftError):
+    """Raised when Microsoft Dev Tunnels binary download fails"""
+    pass
+
+class MicrosoftTunnelError(MicrosoftError):
+    """Raised when Microsoft Dev Tunnels tunnel operations fail"""
+    pass

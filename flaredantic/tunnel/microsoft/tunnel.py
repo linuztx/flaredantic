@@ -3,7 +3,7 @@ import threading
 import re
 from typing import Union, Optional
 from ...base.tunnel import BaseTunnel
-from ...core.exceptions import TunnelError
+from ...core.exceptions import MicrosoftTunnelError
 from ...core.logging_config import setup_logger, GREEN, RESET
 from ...core.notify import NotifyEvent
 from .config import MicrosoftConfig
@@ -89,7 +89,7 @@ class MicrosoftTunnel(BaseTunnel):
         result = self._run_cmd(["user", "show"])
         if result.returncode != 0 or "Logged in as" not in result.stdout:
             self.notify(NotifyEvent.ERROR, "Microsoft Dev Tunnels login failed or not completed")
-            raise TunnelError("Microsoft Dev Tunnels login failed or not completed")
+            raise MicrosoftTunnelError("Microsoft Dev Tunnels login failed or not completed")
 
     def _ensure_tunnel(self) -> None:
         """
@@ -100,7 +100,7 @@ class MicrosoftTunnel(BaseTunnel):
         if show.returncode != 0:
             create = self._run_cmd(["create", self.config.tunnel_id])
             if create.returncode != 0:
-                raise TunnelError(f"Failed to create tunnel: {create.stdout}")
+                raise MicrosoftTunnelError(f"Failed to create tunnel: {create.stdout}")
 
         # Ensure port exists
         port_show = self._run_cmd(["port", "show", self.config.tunnel_id, "-p", str(self.config.port)])
@@ -111,7 +111,7 @@ class MicrosoftTunnel(BaseTunnel):
                 "--protocol", "http"
             ])
             if port_create.returncode != 0:
-                raise TunnelError(f"Failed to create port: {port_create.stdout}")
+                raise MicrosoftTunnelError(f"Failed to create port: {port_create.stdout}")
 
     def _extract_urls_from_line(self, line: str) -> Optional[str]:
         """
@@ -163,7 +163,7 @@ class MicrosoftTunnel(BaseTunnel):
             Tunnel URL
         
         Raises:
-            TunnelError: If tunnel fails to start
+            MicrosoftTunnelError: If tunnel fails to start
         """
         if not self.binary_path:
             downloader = MicrosoftDownloader(self.config.bin_dir, self.config.verbose)
@@ -196,7 +196,7 @@ class MicrosoftTunnel(BaseTunnel):
 
             if not self.tunnel_url:
                 self.notify(NotifyEvent.ERROR, "Timeout waiting for Microsoft Dev Tunnels URL")
-                raise TunnelError("Timeout waiting for Microsoft Dev Tunnels URL")
+                raise MicrosoftTunnelError("Timeout waiting for Microsoft Dev Tunnels URL")
 
             self.notify(NotifyEvent.TUNNEL_URL, self.tunnel_url, {"url": self.tunnel_url})
             return self.tunnel_url
@@ -204,7 +204,7 @@ class MicrosoftTunnel(BaseTunnel):
             self.logger.error(f"Failed to start Microsoft Dev Tunnels: {str(e)}")
             self.notify(NotifyEvent.ERROR, f"Failed to start Microsoft Dev Tunnels: {str(e)}")
             self.stop()
-            raise TunnelError(f"Failed to start Microsoft Dev Tunnels: {str(e)}") from e
+            raise MicrosoftTunnelError(f"Failed to start Microsoft Dev Tunnels: {str(e)}") from e
 
     def stop(self) -> None:
         """

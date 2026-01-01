@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Tuple
 from tqdm import tqdm
 from ...base.downloader import BaseDownloader
-from ...core.exceptions import DownloadError
+from ...core.exceptions import MicrosoftDownloadError
 from ...core.logging_config import setup_logger
 from ...core.notify import NotifyEvent
 
@@ -45,7 +45,7 @@ class MicrosoftDownloader(BaseDownloader):
             Tuple of (download_url, binary_name)
 
         Raises:
-            DownloadError: If platform is not supported
+            MicrosoftDownloadError: If platform is not supported
         """
         system, arch = self._platform_info
         base = "https://tunnelsassetsprod.blob.core.windows.net/cli/"
@@ -57,10 +57,12 @@ class MicrosoftDownloader(BaseDownloader):
                 filename = "linux-arm64-devtunnel"
             else:
                 filename = "linux-x64-devtunnel"
+        elif system == "windows":
+            filename = "devtunnel.exe"
         else:
-            raise DownloadError(f"Unsupported platform: {system} {arch}")
+            raise MicrosoftDownloadError(f"Unsupported platform: {system} {arch}")
 
-        return base + filename, "microsoft"
+        return base + filename, filename
 
     def download(self) -> Path:
         """
@@ -70,20 +72,23 @@ class MicrosoftDownloader(BaseDownloader):
             Path to installed binary
 
         Raises:
-            DownloadError: If download fails
+            MicrosoftDownloadError: If download fails
         """
-        install_path = self.bin_dir / "microsoft"
+        system, _ = self._platform_info
+        executable_name = "devtunnel.exe" if system == "windows" else "devtunnel"
+        install_path = self.bin_dir / executable_name
 
         if install_path.exists():
+            self.logger.debug(f"Using existing Microsoft Dev Tunnels binary at: {install_path}")
             return install_path
 
-        url, _ = self._get_download_url()
-        download_path = self.bin_dir / "microsoft.download"
+        download_url, filename = self._get_download_url()
+        download_path = self.bin_dir / filename
 
         try:
-            self.logger.info(f"Downloading Microsoft Dev Tunnels from: {url}")
+            self.logger.info(f"Downloading Microsoft Dev Tunnels from: {download_url}")
             self.notify(NotifyEvent.DOWNLOADING, "Downloading Microsoft Dev Tunnels binary...")
-            response = requests.get(url, stream=True)
+            response = requests.get(download_url, stream=True)
             response.raise_for_status()
 
             total_size = int(response.headers.get('content-length', 0))
@@ -122,4 +127,4 @@ class MicrosoftDownloader(BaseDownloader):
         except Exception as e:
             self.logger.error(f"Failed to download Microsoft Dev Tunnels: {str(e)}")
             self.notify(NotifyEvent.ERROR, f"Failed to download Microsoft Dev Tunnels: {str(e)}")
-            raise DownloadError(f"Failed to download Microsoft Dev Tunnels: {str(e)}") from e
+            raise MicrosoftDownloadError(f"Failed to download Microsoft Dev Tunnels: {str(e)}") from e
