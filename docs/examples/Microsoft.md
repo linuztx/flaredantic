@@ -2,8 +2,6 @@
 
 This document provides various examples of how to use Flaredantic with Microsoft Dev Tunnelss in different scenarios.
 
-> **⚠️ Note:** Microsoft Dev Tunnels currently only supports **Linux** and **macOS** platforms. Windows support is not yet available in this library.
-
 ## Basic Examples
 
 ### Simple HTTP Server
@@ -58,7 +56,7 @@ The binary is located in `~/.flaredantic/microsoft` (or your custom `bin_dir`).
 cd ~/.flaredantic/
 
 # Run the logout command
-./microsoft user logout
+./devtunnel user logout
 ```
 
 After logging out, the next time you run your Python script with `MicrosoftTunnel`, it will prompt you for a new device login.
@@ -66,7 +64,7 @@ After logging out, the next time you run your Python script with `MicrosoftTunne
 **To check current login status:**
 ```bash
 cd ~/.flaredantic/
-./microsoft user show
+./devtunnel user show
 ```
 
 ## Advanced Examples
