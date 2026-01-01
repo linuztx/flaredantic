@@ -39,6 +39,8 @@ While tools like ngrok are great, Flaredantic offers several advantages:
 
 Flaredantic makes it dead simple to use tunnels in your Python projects!
 
+> ⚠️ **Warning:** Exposing local services to the internet can be a security risk. Never expose sensitive or unprotected endpoints. Use at your own risk.
+
 ## 🚀 Installation
 
 ```bash
