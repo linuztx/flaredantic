@@ -130,6 +130,8 @@ async def start_tunnel(request: TunnelRequest):
         # Add provider-specific config
         if provider == TunnelProvider.MICROSOFT:
             config["tunnel_id"] = "flaredantic-demo"
+        elif provider == TunnelProvider.TAILSCALE:
+            config["hostname"] = "flaredantic-demo"
 
         # Start tunnel in background thread to not block
         def start():

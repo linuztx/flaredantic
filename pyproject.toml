@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "flaredantic"
 dynamic = ["version"]
-description = "Create Cloudflare, Microsoft, and Serveo tunnels with ease."
+description = "Create Cloudflare, Microsoft, Serveo, and Tailscale tunnels with ease."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -14,7 +14,7 @@ authors = [
     { name = "linuztx", email = "linuztx@gmail.com" }
 ]
 keywords = [
-    "cloudflare", "serveo", "microsoft", "tunnel", 
+    "cloudflare", "serveo", "microsoft", "tailscale", "funnel", "tunnel",
     "networking", "proxy", "localhost", "expose", "ngrok-alternative"
 ]
 classifiers = [

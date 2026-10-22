@@ -5,6 +5,7 @@ import threading
 from .tunnel.cloudflare import FlareTunnel, FlareConfig
 from .tunnel.serveo import ServeoTunnel, ServeoConfig
 from .tunnel.microsoft import MicrosoftTunnel, MicrosoftConfig
+from .tunnel.tailscale import TailscaleTunnel, TailscaleConfig
 from .base.tunnel import BaseTunnel
 from .core.notify import notifier, NotifyCallback, NotifyEvent, NotifyData
 
@@ -14,6 +15,7 @@ class TunnelProvider(Enum):
     CLOUDFLARE = "cloudflare"
     SERVEO = "serveo"
     MICROSOFT = "microsoft"
+    TAILSCALE = "tailscale"
 
 
 class TunnelManager:
@@ -67,8 +69,8 @@ class TunnelManager:
 
     def create_tunnel(
         self,
-        provider: Union[TunnelProvider, Literal["cloudflare", "serveo", "microsoft"]],
-        config: Union[FlareConfig, ServeoConfig, MicrosoftConfig, dict]
+        provider: Union[TunnelProvider, Literal["cloudflare", "serveo", "microsoft", "tailscale"]],
+        config: Union[FlareConfig, ServeoConfig, MicrosoftConfig, TailscaleConfig, dict]
     ) -> str:
         """
         Create and start a tunnel.
@@ -101,6 +103,8 @@ class TunnelManager:
             self._tunnel = ServeoTunnel(config)  # type: ignore[arg-type]
         elif provider == TunnelProvider.MICROSOFT:
             self._tunnel = MicrosoftTunnel(config)  # type: ignore[arg-type]
+        elif provider == TunnelProvider.TAILSCALE:
+            self._tunnel = TailscaleTunnel(config)  # type: ignore[arg-type]
         else:
             raise ValueError(f"Unsupported provider: {provider}")
 
