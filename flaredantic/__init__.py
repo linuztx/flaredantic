@@ -1,12 +1,16 @@
 from .tunnel.cloudflare import FlareTunnel, FlareConfig
 from .tunnel.serveo import ServeoTunnel, ServeoConfig
 from .tunnel.microsoft import MicrosoftTunnel, MicrosoftConfig
+from .tunnel.tailscale import TailscaleTunnel, TailscaleConfig
 from .core.exceptions import (
     CloudflaredError,
     DownloadError,
     TunnelError,
     ServeoError,
-    SSHError
+    SSHError,
+    TailscaleError,
+    TailscaleDownloadError,
+    TailscaleTunnelError
 )
 from .core.notify import (
     NotifyEvent,
@@ -35,6 +39,10 @@ __all__ = [
     "MicrosoftTunnel",
     "MicrosoftConfig",
 
+    # Tailscale provider
+    "TailscaleTunnel",
+    "TailscaleConfig",
+
     # Tunnel Manager
     "TunnelManager",
     "TunnelProvider",
@@ -53,6 +61,9 @@ __all__ = [
     "TunnelError",
     "ServeoError",
     "SSHError",
+    "TailscaleError",
+    "TailscaleDownloadError",
+    "TailscaleTunnelError",
 
     # Version
     "__version__",

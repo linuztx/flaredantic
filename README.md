@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Monthly Downloads](https://pepy.tech/badge/flaredantic/month)](https://pepy.tech/project/flaredantic)
 
-Flaredantic is a Python library that simplifies the process of creating tunnels to expose your local services to the internet. It supports Cloudflare, Serveo, and Microsoft Dev Tunnel services, making it a user-friendly alternative to ngrok, localtunnel, and similar tools.
+Flaredantic is a Python library that simplifies the process of creating tunnels to expose your local services to the internet. It supports Cloudflare, Serveo, Microsoft Dev Tunnels, and Tailscale Funnel, making it a user-friendly alternative to ngrok, localtunnel, and similar tools.
 
 </div>
 
@@ -20,7 +20,7 @@ Flaredantic is a Python library that simplifies the process of creating tunnels 
 - 🚀 Easy-to-use Python API
 - 💻 Command-line interface (CLI)
 - 📦 Automatic binary management
-- 🔄 Multiple tunnel providers (Cloudflare, Serveo, Microsoft Dev Tunnels)
+- 🔄 Multiple tunnel providers (Cloudflare, Serveo, Microsoft Dev Tunnels, Tailscale Funnel)
 - 🌐 TCP forwarding support (Serveo)
 - 🎯 Cross-platform support (Windows, macOS, Linux)
 - 📱 Android support via Termux
@@ -65,6 +65,9 @@ flare --port 8080 --tunnel serveo
 # Use Microsoft Dev Tunnels
 flare --port 8080 --tunnel microsoft
 
+# Use Tailscale Funnel
+flare --port 8080 --tunnel tailscale
+
 # TCP forwarding with Serveo
 flare --port 5432 --tcp
 ```
@@ -74,7 +77,7 @@ CLI Options:
 -p, --port     Local port to expose (required)
 -t, --timeout  Tunnel start timeout in seconds (default: 30)
 -v, --verbose  Show detailed progress output
---tunnel       Tunnel provider to use [cloudflare, serveo, microsoft] (default: cloudflare)
+--tunnel       Tunnel provider to use [cloudflare, serveo, microsoft, tailscale] (default: cloudflare)
 --tcp          Use Serveo with TCP forwarding (overrides --tunnel)
 ```
 
@@ -119,6 +122,19 @@ with MicrosoftTunnel(config) as tunnel:
     input("Press Enter to stop the tunnel...")
 ```
 
+#### Basic Usage with Tailscale Funnel
+
+```python
+from flaredantic import TailscaleTunnel, TailscaleConfig
+
+# Create a tunnel using Tailscale Funnel
+config = TailscaleConfig(port=8080)
+with TailscaleTunnel(config) as tunnel:
+    print(f"Your service is available at: {tunnel.tunnel_url}")
+    # Your application code here
+    input("Press Enter to stop the tunnel...")
+```
+
 #### TCP Forwarding with Serveo
 
 ```python
@@ -138,6 +154,7 @@ with ServeoTunnel(config) as tunnel:
 from flaredantic import FlareTunnel, FlareConfig
 from flaredantic import ServeoTunnel, ServeoConfig
 from flaredantic import MicrosoftTunnel, MicrosoftConfig
+from flaredantic import TailscaleTunnel, TailscaleConfig
 from pathlib import Path
 
 # Configure Cloudflare tunnel with custom settings
@@ -164,6 +181,15 @@ microsoft_config = MicrosoftConfig(
     verbose=True,  # Enable detailed logging
     tunnel_id="flaredantic",  # Custom tunnel ID
     device_login=True  # Use device login flow
+)
+
+# Configure Tailscale Funnel with custom settings
+tailscale_config = TailscaleConfig(
+    port=8080,
+    timeout=60,
+    verbose=True,  # Enable detailed logging
+    https_port=8443,  # Public port: 443, 8443 or 10000
+    hostname="my-app"  # Machine name when flaredantic runs its own Tailscale node
 )
 
 # Create and start tunnel (choose one)
@@ -229,12 +255,30 @@ if __name__ == '__main__':
 | tunnel_id | str | "flaredantic" | Custom tunnel ID |
 | device_login | bool | True | Use device login flow |
 
+### Tailscale Funnel Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| port | int | Required | Local port to expose |
+| bin_dir | Path | ~/.flaredantic | Directory for downloaded tailscale binaries |
+| timeout | int | 30 | Tunnel start timeout in seconds |
+| verbose | bool | False | Show detailed progress and debug output |
+| https_port | int | 443 | Public HTTPS port (443, 8443 or 10000) |
+| use_system | bool | True | Use the Tailscale already running on this machine |
+| login_timeout | int | 300 | Seconds to wait for browser login or Funnel approval |
+| hostname | str | "flaredantic" | Machine name of the node flaredantic runs itself |
+| auth_key | str | None | Auth key to log that node in without a browser |
+| state_dir | Path | ~/.flaredantic/tailscale-state | State directory of that node |
+
 ## 📦 Requirements
 
 - **Cloudflare tunnel**: No additional requirements (binary auto-downloaded)
 - **Serveo tunnel**: Requires SSH client to be installed
 - **Microsoft Dev Tunnels**: No additional requirements (binary auto-downloaded)
   - **Note**: Currently only supports Linux and macOS.
+- **Tailscale Funnel**: A Tailscale account
+  - Uses the Tailscale running on your machine (v1.52 or newer) if there is one. Otherwise, on Linux, the binaries are auto-downloaded and flaredantic runs its own node.
+  - **Note**: Funnel must be enabled for your tailnet. The first run prints a link to enable it.
 
 > **❗️Note:** Serveo servers might occasionally be unavailable as they are a free service. Flaredantic automatically detects when Serveo is down and provides a clear error message. Consider using Cloudflare tunnels if you need guaranteed availability.
 
@@ -244,5 +288,6 @@ For more detailed examples and use cases, check out our examples:
 - [Cloudflare Examples](docs/examples/Cloudflare.md) - HTTP Server, Django, FastAPI, Flask
 - [Serveo Examples](docs/examples/Serveo.md) - HTTP, TCP, SSH forwarding, database access
 - [Microsoft Examples](docs/examples/Microsoft.md) - HTTP Server, Custom Tunnel ID, Device Login
+- [Tailscale Examples](docs/examples/Tailscale.md) - HTTP Server, Login, Auth Keys, Multiple Tunnels
 
 ---

@@ -29,3 +29,15 @@ class MicrosoftDownloadError(MicrosoftError):
 class MicrosoftTunnelError(MicrosoftError):
     """Raised when Microsoft Dev Tunnels tunnel operations fail"""
     pass
+
+class TailscaleError(Exception):
+    """Base exception for Tailscale-related errors"""
+    pass
+
+class TailscaleDownloadError(TailscaleError):
+    """Raised when Tailscale binary download fails"""
+    pass
+
+class TailscaleTunnelError(TailscaleError):
+    """Raised when Tailscale Funnel tunnel operations fail"""
+    pass

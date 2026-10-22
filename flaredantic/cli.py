@@ -4,6 +4,7 @@ import sys
 from . import FlareTunnel, FlareConfig
 from . import ServeoTunnel, ServeoConfig
 from . import MicrosoftTunnel, MicrosoftConfig
+from . import TailscaleTunnel, TailscaleConfig
 
 def signal_handler(sig, frame):
     sys.exit(0)
@@ -37,7 +38,7 @@ def main():
 
     parser.add_argument(
         "--tunnel",
-        choices=["cloudflare", "serveo", "microsoft"],
+        choices=["cloudflare", "serveo", "microsoft", "tailscale"],
         default="cloudflare",
         help="Tunnel provider to use"
     )
@@ -74,13 +75,20 @@ def main():
             tcp=args.tcp
         )
         tunnel = ServeoTunnel(config)
-    else:  # microsoft
+    elif args.tunnel == "microsoft":
         config = MicrosoftConfig(
             port=args.port,
             timeout=args.timeout,
             verbose=args.verbose
         )
         tunnel = MicrosoftTunnel(config)
+    else:  # tailscale
+        config = TailscaleConfig(
+            port=args.port,
+            timeout=args.timeout,
+            verbose=args.verbose
+        )
+        tunnel = TailscaleTunnel(config)
     
     try:
         with tunnel:
